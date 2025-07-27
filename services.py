@@ -48,9 +48,10 @@ class OpenAIGPT(LLMBase):
         self.model = os.getenv("OPENAI_MODEL", "gpt-4o-mini")
 
     def analyze_prompt(self, prompt_text: str) -> str:
+        prompt_text += "Keep your response under 500 tokens"
         response = self.client.chat.completions.create(
             model=self.model,
-            max_tokens=200,
+            max_tokens=500,
             messages=[
                 {"role": "user", "content": prompt_text}
             ]
@@ -90,13 +91,13 @@ class OpenAIGPT(LLMBase):
         reframer_prompt = (
             f"You are rewriting AI answers from different cultural or ideological perspectives. "
             f"Rephrase the following answer from a {perspective} point of view. "
-            "Keep it coherent and representative of that lens.\n\n"
+            "Keep it coherent and representative of that lens. Keep your response under 300 tokens. \n\n"
             f"Original Prompt: {prompt_text}"
         )
 
         response = self.client.chat.completions.create(
             model=self.model,
-            max_tokens=200,
+            max_tokens=300,
             messages=[
                 {"role": "user", "content": reframer_prompt}
             ]
@@ -112,7 +113,7 @@ class OpenAIGPT(LLMBase):
     ) -> str:
         system = (
             "You are an AI being cross-examined by a human. Justify your original response while staying consistent. "
-            "Address bias, ethics, logic, and framing clearly and respectfully."
+            "Address bias, ethics, logic, and framing clearly and respectfully. Keep your response under 300 tokens."
         )
 
         messages = [{"role": "system", "content": system}]
@@ -131,7 +132,7 @@ class OpenAIGPT(LLMBase):
 
         response = self.client.chat.completions.create(
             model=self.model,
-            max_tokens=150,
+            max_tokens=300,
             messages=messages
         )
 
