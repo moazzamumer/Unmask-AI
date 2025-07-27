@@ -42,3 +42,31 @@ def store_bias_insights(db: Session, prompt_id: UUID, bias_data: List[dict]):
         #print(record.insight_summary)
     db.commit()
     return records
+
+def create_cross_exam(db: Session, prompt_id: UUID, user_question: str, ai_response: str) -> CrossExam:
+    obj = CrossExam(
+        id=uuid.uuid4(),
+        prompt_id=prompt_id,
+        user_question=user_question,
+        ai_response=ai_response,
+        created_at=datetime.utcnow()
+    )
+    db.add(obj)
+    db.commit()
+    db.refresh(obj)
+    return obj
+
+
+def create_perspective_output(
+    db: Session, prompt_id: UUID, perspective: str, ai_rephrased_output: str
+) -> PerspectiveOutput:
+    obj = PerspectiveOutput(
+        id=uuid.uuid4(),
+        prompt_id=prompt_id,
+        perspective=perspective,
+        ai_rephrased_output=ai_rephrased_output
+    )
+    db.add(obj)
+    db.commit()
+    db.refresh(obj)
+    return obj

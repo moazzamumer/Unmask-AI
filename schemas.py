@@ -10,7 +10,7 @@ class BiasItem(BaseModel):
 
 class BiasDetectionOutput(BaseModel):
     biases: List[BiasItem]
-    highlighted_terms: List[str] = []
+    #highlighted_terms: List[str] = []
 
 class SessionCreate(BaseModel):
     model_used: Optional[str]
@@ -48,3 +48,31 @@ class BiasInsightOut(BiasItem):
 
     class Config:
         orm_mode = True
+
+class CrossExamCreate(BaseModel):
+    prompt_id: UUID
+    user_question: str
+
+class CrossExamOut(BaseModel):
+    id: UUID
+    prompt_id: UUID
+    user_question: str
+    ai_response: Optional[str]
+    created_at: datetime
+
+    class Config:
+        orm_mode = True
+
+class PerspectiveCreate(BaseModel):
+    prompt_id: UUID
+    perspective: str
+
+class PerspectiveOut(BaseModel):
+    id: UUID
+    prompt_id: UUID
+    perspective: str
+    ai_rephrased_output: str
+
+    class Config:
+        orm_mode = True
+

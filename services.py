@@ -25,6 +25,16 @@ class LLMBase(ABC):
     def reframe_perspective(self, prompt_text: str, perspective: str) -> str:
         pass
 
+    @abstractmethod
+    def cross_examine(
+        self,
+        user_prompt: str,
+        ai_initial_response: str,
+        user_question: str,
+        previous_qa: List[dict]
+    ) -> str:
+        pass
+
 
 # ---------------------------
 # GPT-4o Integration
@@ -91,6 +101,42 @@ class OpenAIGPT(LLMBase):
             ]
         )
         return response.choices[0].message.content
+    
+    def cross_examine(
+        self,
+        user_prompt: str,
+        ai_initial_response: str,
+        user_question: str,
+        previous_qa: List[dict]
+    ) -> str:
+        system = (
+            "You are an AI being cross-examined by a human. Justify your original response while staying consistent. "
+            "Address bias, ethics, logic, and framing clearly and respectfully."
+        )
+
+        messages = [{"role": "system", "content": system}]
+
+        # Original context
+        messages.append({"role": "user", "content": f"User Prompt: {user_prompt}"})
+        messages.append({"role": "assistant", "content": ai_initial_response})
+
+        # Prior cross-exam Q&A history
+        for qa in previous_qa:
+            messages.append({"role": "user", "content": qa["user_question"]})
+            messages.append({"role": "assistant", "content": qa["ai_response"]})
+
+        # New question to answer
+        messages.append({"role": "user", "content": user_question})
+
+        response = self.client.chat.completions.create(
+            model=self.model,
+            max_tokens=150,
+            messages=messages
+        )
+
+        return response.choices[0].message.content
+
+
 
 
 # ---------------------------
