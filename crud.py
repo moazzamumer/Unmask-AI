@@ -56,6 +56,14 @@ def create_cross_exam(db: Session, prompt_id: UUID, user_question: str, ai_respo
     db.refresh(obj)
     return obj
 
+def get_cross_exams_by_prompt(db: Session, prompt_id: UUID):
+    return (
+        db.query(CrossExam)
+        .filter(CrossExam.prompt_id == prompt_id)
+        .order_by(CrossExam.created_at.asc())
+        .all()
+    )
+
 
 def create_perspective_output(
     db: Session, prompt_id: UUID, perspective: str, ai_rephrased_output: str
@@ -70,3 +78,20 @@ def create_perspective_output(
     db.commit()
     db.refresh(obj)
     return obj
+
+def create_human_override(
+    db: Session, prompt_id: UUID, human_response: str,
+    justification: Optional[str], tags: Optional[List[str]]
+) -> HumanOverride:
+    override = HumanOverride(
+        id=uuid.uuid4(),
+        prompt_id=prompt_id,
+        human_response=human_response,
+        justification=justification,
+        tags=tags
+    )
+    db.add(override)
+    db.commit()
+    db.refresh(override)
+    return override
+

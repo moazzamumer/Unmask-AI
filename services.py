@@ -96,6 +96,7 @@ class OpenAIGPT(LLMBase):
 
         response = self.client.chat.completions.create(
             model=self.model,
+            max_tokens=200,
             messages=[
                 {"role": "user", "content": reframer_prompt}
             ]

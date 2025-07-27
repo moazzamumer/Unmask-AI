@@ -23,7 +23,7 @@ class SessionOut(BaseModel):
     domain: Optional[str]
 
     class Config:
-        orm_mode = True
+        from_attributes = True
 
 class PromptCreate(BaseModel):
     session_id: UUID
@@ -37,7 +37,7 @@ class PromptOut(BaseModel):
     created_at: datetime
 
     class Config:
-        orm_mode = True
+        from_attributes = True
 
 class BiasInput(BaseModel):
     prompt_id: UUID
@@ -47,7 +47,7 @@ class BiasInsightOut(BiasItem):
     id: UUID
 
     class Config:
-        orm_mode = True
+        from_attributes = True
 
 class CrossExamCreate(BaseModel):
     prompt_id: UUID
@@ -61,7 +61,15 @@ class CrossExamOut(BaseModel):
     created_at: datetime
 
     class Config:
-        orm_mode = True
+        from_attributes = True
+
+class CrossExamListItem(BaseModel):
+    user_question: str
+    ai_response: Optional[str]
+    created_at: datetime
+
+    class Config:
+        from_attributes = True 
 
 class PerspectiveCreate(BaseModel):
     prompt_id: UUID
@@ -74,5 +82,54 @@ class PerspectiveOut(BaseModel):
     ai_rephrased_output: str
 
     class Config:
-        orm_mode = True
+        from_attributes = True
 
+class HumanOverrideCreate(BaseModel):
+    prompt_id: UUID
+    human_response: str
+    justification: Optional[str] = None
+    tags: Optional[List[str]] = []
+
+class HumanOverrideOut(BaseModel):
+    id: UUID
+    prompt_id: UUID
+    human_response: str
+    justification: Optional[str]
+    tags: Optional[List[str]]
+
+    class Config:
+        from_attributes = True
+
+class BiasInsightMinimal(BaseModel):
+    category: str
+    score: float
+    summary: Optional[str]
+
+class CrossExamMinimal(BaseModel):
+    user_question: str
+    ai_response: str
+
+class PerspectiveMinimal(BaseModel):
+    perspective: str
+    ai_rephrased_output: str
+
+class HumanOverrideMinimal(BaseModel):
+    human_response: str
+    justification: Optional[str]
+    tags: Optional[List[str]]
+
+class PromptReport(BaseModel):
+    id: UUID
+    prompt_text: str
+    ai_response: Optional[str]
+    bias_insights: List[BiasInsightMinimal]
+    cross_exams: List[CrossExamMinimal]
+    perspectives: List[PerspectiveMinimal]
+    human_override: Optional[HumanOverrideMinimal]
+
+class BiasReportOut(BaseModel):
+    session_id: UUID
+    model_used: Optional[str]
+    domain: Optional[str]
+    created_at: datetime
+    prompts: List[PromptReport]

@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>UnmaskAI Bias Report</title>
+  <style>
+    body { font-family: Helvetica, Arial, sans-serif; color: #222; line-height: 1.5; margin: 0; padding: 1cm; page-break-before: avoid; }
+    h1 { font-size: 24px; margin-bottom: 0.2em; }
+    h2 { font-size: 18px; margin-top: 1.2em; color: #333; }
+    h3 { font-size: 14px; margin-top: 1em; color: #444; }
+    .meta { color: #777; font-size: 0.9em; margin-bottom: 0.8em; }
+    .section { margin-bottom: 1.5em; }
+    .block { margin-bottom: 0.5em; }
+    ul.bias-list { padding-left: 20px; }
+    li { margin-bottom: 0.2em; }
+    .cross-exam, .perspective, .human-override { border-left: 3px solid #ddd; padding-left: 8px; margin-bottom: 0.4em; }
+    @page {
+  size: Letter;
+  margin: 1cm;
+  @bottom-center {
+    content: "Page " counter(page) " of " counter(pages);
+    font-size: 9pt;
+  }
+}
+@page :first {
+  margin: 1cm;
+}
+h1 {
+  font-size: 24px;
+  margin-bottom: 0.2em;
+}
+  </style>
+</head>
+<body>
+  <h1>🧠 UnmaskAI Bias Report</h1>
+  <div class="meta">
+    Model: {{ report.model_used or "N/A" }} | 
+    Domain: {{ report.domain or "N/A" }} |
+    Generated: {{ report.created_at.strftime('%Y-%m-%d %H:%M:%S') }}
+  </div>
+
+  {% for prompt in report.prompts %}
+    <div class="section">
+      <h2>🔹 Prompt </h2>
+      <div class="block"><b>📝 Q:</b> {{ prompt.prompt_text }}</div>
+      <div class="block"><b>🤖 AI:</b> {{ prompt.ai_response | safe }}</div>
+
+      {% if prompt.bias_insights %}
+        <h2>🧪 Bias Summary</h2>
+        <ul class="bias-list">
+          {% for b in prompt.bias_insights %}
+            <li><b>{{ b.category }}</b> ({{ b.score }}): {{ b.summary }}</li>
+          {% endfor %}
+        </ul>
+      {% endif %}
+
+      {% if prompt.cross_exams %}
+        <h2>⚖️ Cross-Examination</h2>
+        {% for qa in prompt.cross_exams %}
+          <div class="cross-exam"><b>👤 Q:</b> {{ qa.user_question }}<br><b>🤖 AI:</b> {{ qa.ai_response }}</div>
+        {% endfor %}
+      {% endif %}
+
+      {% if prompt.perspectives %}
+        <h2>🌍 Perspective Reframes</h2>
+        {% for p in prompt.perspectives %}
+          <div class="perspective"><b>{{ p.perspective }}:</b> {{ p.ai_rephrased_output }}</div>
+        {% endfor %}
+      {% endif %}
+
+      {% if prompt.human_override %}
+        <h2>✅ Human Correction</h2>
+        <div class="human-override">
+          ✍ {{ prompt.human_override.human_response }}<br>
+          {% if prompt.human_override.justification %}
+            📝 Why: {{ prompt.human_override.justification }}<br>
+          {% endif %}
+          {% if prompt.human_override.tags %}
+            🏷 Tags: {{ prompt.human_override.tags | join(', ') }}
+          {% endif %}
+        </div>
+      {% endif %}
+    </div>
+  {% endfor %}
+</body>
+</html>
