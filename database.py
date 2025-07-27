@@ -1,7 +1,8 @@
 
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
-from sqlalchemy.ext.declarative import declarative_base
+from sqlalchemy.orm import declarative_base
+from models import create_database
 import os
 from dotenv import load_dotenv
 
@@ -9,7 +10,7 @@ from dotenv import load_dotenv
 load_dotenv()
 
 # Example: postgresql://user:password@localhost/dbname
-DATABASE_URL = os.getenv("DATABASE_URL", "postgresql://postgres:postgres@localhost/unmaskai")
+DATABASE_URL = os.getenv("DATABASE_URL")
 
 # SQLAlchemy engine
 engine = create_engine(DATABASE_URL)
@@ -27,3 +28,8 @@ def get_db():
         yield db
     finally:
         db.close()
+
+if __name__ == "__main__":
+    # Create all tables
+    create_database(engine)
+    print("✅ Tables created successfully.")

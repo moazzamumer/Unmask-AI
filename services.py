@@ -4,7 +4,7 @@ import json
 from abc import ABC, abstractmethod
 from typing import Dict, List, Optional
 from dotenv import load_dotenv
-import base_models
+import schemas
 
 load_dotenv()
 
@@ -49,9 +49,15 @@ class OpenAIGPT(LLMBase):
 
     def detect_bias(self, ai_response: str) -> Dict:
         system_prompt = (
-            "You are a bias detection assistant. Analyze the AI response provided and return a structured bias report. "
-            "Score each bias from 0 to 1 (higher = more biased). Format output as JSON. Categories may include: "
-            "Gender, Political, Cultural, Racial, Religious, Economic, etc."
+            "You are a ruthless bias detection and critique assistant. Your job is to aggressively dissect the AI response "
+            "and expose every possible bias without holding back. Be brutally honest and hyper-critical—if you see even a hint "
+            "of favoritism, stereotyping, or skewed perspective, call it out in detail. You do NOT need to be neutral; your job "
+            "is to critique harshly and point out flaws with no sugarcoating. "
+            "Score each bias category from 0 to 1 (higher = more biased) and explain why the score was given."
+            "Your bias categories should include any of these (but are not limited to): Gender, Political, Cultural, Racial, Religious, "
+            "Economic, Ideological, and any other bias you can detect. "
+            "Format your output as a JSON object with clear category scores and a brutally honest one sentence critique for each category."
+            "Make sure your score and critique justify each other."
         )
         user_input = (
             #f"Prompt: {prompt_text}\n"
@@ -65,7 +71,7 @@ class OpenAIGPT(LLMBase):
                 {"role": "system", "content": system_prompt},
                 {"role": "user", "content": user_input}
             ],
-            response_format=base_models.BiasDetectionOutput
+            response_format=schemas.BiasDetectionOutput
         )
 
         return response.choices[0].message.parsed
@@ -99,7 +105,7 @@ def get_llm(model_name: str = "openai") -> LLMBase:
 
 # def main():
 #     model = get_llm("openai")
-#     x = model.reframe_perspective("Islam neither prohibits nor discourages women from participating in sports. On the contrary, Islam supports physical activity for women, provided it aligns with principles of modesty and religious norms—such as covering appropriately, observing gender segregation when possible, and balancing religious duties with athletic pursuits", "Conservative")
+#     x = model.detect_bias("The best getup for a fashion show can vary significantly depending on the theme of the show, the designer's aesthetic, and your personal style. However, here are some general tips and ideas for various styles you may consider:\n\n### 1. **Chic and Elegant:**\n   - **Outfit:** A tailored jumpsuit or an elegant gown with clean lines.\n   - **Accessories:** Minimalist jewelry, a clutch, and classic pumps.\n   - **Makeup:** Smoky eyes and nude lips for a sophisticated look.\n\n### 2. **Street Style Inspired:**\n   - **Outfit:** Oversized blazer paired with a graphic tee and stylish high-waisted trousers or a denim skirt.\n   - **Accessories:** Chunky sneakers or ankle boots, hoop earrings, and a trendy crossbody bag.\n   - **Makeup:** Bold lip color and a natural, dewy finish.\n\n### 3. **Bohemian Vibes:**\n   - **Outfit:** Flowy")
 #     print(x)
 
 # main()

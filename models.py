@@ -7,6 +7,10 @@ from datetime import datetime
 
 Base = declarative_base()
 
+def create_database(engine):
+    Base.metadata.create_all(bind=engine)
+    print("Database created successfully.")
+
 # -----------------------------
 # Sessions Table
 # -----------------------------
@@ -52,7 +56,7 @@ class BiasInsight(Base):
     prompt_id = Column(UUID(as_uuid=True), ForeignKey("prompts.id", ondelete="CASCADE"))
     category = Column(String(100), nullable=False)
     score = Column(Float)
-    highlighted_terms = Column(JSON)
+    #highlighted_terms = Column(JSON)
     insight_summary = Column(Text)
 
     # Relationships

@@ -1,0 +1,44 @@
+from sqlalchemy.orm import Session
+from models import Session as SessionModel
+from models import *
+from datetime import datetime
+from typing import List, Optional
+from uuid import UUID
+import uuid
+
+def create_session(db: Session, model_used: str = None, domain: str = None) -> SessionModel:
+    session_obj = SessionModel(id=uuid.uuid4(), model_used=model_used, domain=domain)
+    db.add(session_obj)
+    db.commit()
+    db.refresh(session_obj)
+    return session_obj
+
+def create_prompt(db: Session, session_id: str, prompt_text: str, ai_response: str) -> Prompt:
+    prompt_obj = Prompt(
+        id=uuid.uuid4(),
+        session_id=session_id,
+        prompt_text=prompt_text,
+        ai_response=ai_response,
+        created_at=datetime.utcnow()
+    )
+    db.add(prompt_obj)
+    db.commit()
+    db.refresh(prompt_obj)
+    return prompt_obj
+
+def store_bias_insights(db: Session, prompt_id: UUID, bias_data: List[dict]):
+    records = []
+    for item in bias_data:
+        record = BiasInsight(
+            id=uuid.uuid4(),
+            prompt_id=prompt_id,
+            category=item.category,
+            score=item.score,
+            insight_summary=item.insight_summary,
+            #highlighted_terms=item.highlighted_terms
+        )
+        db.add(record)
+        records.append(record)
+        #print(record.insight_summary)
+    db.commit()
+    return records
