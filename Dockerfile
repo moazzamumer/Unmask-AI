@@ -1,7 +1,10 @@
-FROM python:3.11-slim
+FROM python:3.11-bullseye   # Switch to bullseye for better apt support
+
+# Prevent interactive apt installs
+ENV DEBIAN_FRONTEND=noninteractive
 
 # Install required system packages for WeasyPrint
-RUN apt-get update && apt-get install -y \
+RUN apt-get update --fix-missing && apt-get install -y \
     build-essential \
     libcairo2 \
     libpango-1.0-0 \
@@ -10,7 +13,7 @@ RUN apt-get update && apt-get install -y \
     libgobject-2.0-0 \
     libpangocairo-1.0-0 \
     curl \
-    && apt-get clean
+    && rm -rf /var/lib/apt/lists/*
 
 # Set working directory
 WORKDIR /app
@@ -19,8 +22,8 @@ WORKDIR /app
 COPY . .
 
 # Install Python packages
-RUN pip install --upgrade pip
-RUN pip install -r requirements.txt
+RUN pip install --upgrade pip && \
+    pip install -r requirements.txt
 
-# Start FastAPI
-CMD ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "8000"]
+# Run FastAPI using python main.py
+CMD ["python", "main.py"]
