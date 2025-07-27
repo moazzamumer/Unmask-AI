@@ -1,4 +1,4 @@
-FROM python:3.11-bullseye   # Switch to bullseye for better apt support
+FROM python:3.11-bullseye
 
 # Prevent interactive apt installs
 ENV DEBIAN_FRONTEND=noninteractive
